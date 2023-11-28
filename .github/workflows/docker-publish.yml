@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: /libri/db/
+          file: libri/db/
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/libridb:latest
 
@@ -36,7 +36,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: /libri/program/
+          file: libri/program/
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/libriprogram:latest
 
@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: /utenti/db/
+          file: utenti/db/
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/utentidb:latest
 
