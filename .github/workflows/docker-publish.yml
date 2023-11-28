@@ -23,7 +23,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       -  
-        name: build and push db 
+        name: build and push libridb
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -32,7 +32,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/libridb:latest
 
       -  
-        name: build and push program
+        name: build and push libriprogram
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -41,7 +41,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/libriprogram:latest
 
       -  
-        name: build and push db 
+        name: build and push utentidb
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -50,7 +50,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/utentidb:latest
 
       -  
-        name: build and push db 
+        name: build and push utentiprogram
         uses: docker/build-push-action@v5
         with:
           context: .
