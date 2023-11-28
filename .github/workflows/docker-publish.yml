@@ -22,14 +22,6 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      -  
-        name: build and push libridb
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: libri/db/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/libridb:latest
 
       -  
         name: build and push libriprogram
