@@ -21,21 +21,13 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      -
-        name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/clockbox:latest
 
       -  
         name: build and push db 
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: libri/db/Dockerfile
+          file: ./libri/db/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/libridb:latest
 
@@ -44,7 +36,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: libri/program/Dockerfile
+          file: ./libri/program/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/libriprogram:latest
 
@@ -53,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: utenti/db/Dockerfile
+          file: ./utenti/db/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/utentidb:latest
 
@@ -62,6 +54,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: utenti/program/Dockerfile
+          file: ./utenti/program/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/utentiprogram:latest
