@@ -1,6 +1,7 @@
 name: Push e Build su Docker Hub v2
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
