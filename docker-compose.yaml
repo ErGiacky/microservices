@@ -1,0 +1,45 @@
+version: '3'
+services:
+
+#app python utenti
+  apputenti:
+    container_name: apputenti
+    restart: on-failure
+    #posso usare il nome del container per la build direttamente da dockerhub
+    image: image:UtentiApp
+        #130secondi prima di avviare il programma
+    command:  sh -c "sleep 130s ; python3 ./utenti.py"
+    ports:
+      - '5000:5000' #esposta la porta default di flask [5000]
+    depends_on:
+      - dbutenti  # prende come riferimento il dbutenti
+    networks:
+      - users #condividono la stessa rete
+    
+#db utenti mysql
+  dbutenti:
+    container_name: dbutenti
+    image:  image:UtentiDb
+    restart: on-failure #restart del container 
+    environment:
+      MYSQL_ROOT_PASSWORD: password! #variabili da utilizzare dentro il db
+      MYSQL_DATABASE: Utenti
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: password 
+    networks:
+      - users
+
+      #db libri
+  dblibri:
+    container_name: dblibri
+    image: image:Dblibri 
+    restart: on-failure 
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: Libri
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: password  
+    ports:
+      -  '3305:3306'
+    networks:
+      - books
