@@ -32,14 +32,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/libriprogram:latest
 
-      -  
-        name: build and push utentidb
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: utenti/db/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/utentidb:latest
 
       -  
         name: build and push utentiprogram
