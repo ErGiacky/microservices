@@ -3,41 +3,68 @@ import mysql.connector
 
 app = Flask(__name__)
 
-# Connessione al database MySQL (Prestiti)
-conn_prestiti_mysql = mysql.connector.connect(
-    user='sa',
-    password='password',
-    host='dbprestiti',
-    database='Prestito'
-)
-db_prestiti_mysql = mysql.connector.connect(connection=conn_prestiti_mysql)
-cursor_prestiti_mysql = db_prestiti_mysql.cursor()
+# Configurazione della connessione al database
+db_config = {
+    'user': 'sa',
+    'password': 'password',
+    'host': 'dbprestiti',
+    'database': 'Prestito'
+}
 
-# Rotte per i prestiti
+# Funzione per ottenere una connessione al database
+def get_db_connection():
+    return mysql.connector.connect(**db_config)
+
+# Rotta per ottenere tutti i prestiti
 @app.route('/prestiti', methods=['GET'])
 def get_prestiti():
     try:
-        # MySQL
-        cursor_prestiti_mysql.execute("SELECT * FROM prestiti")
-        prestiti_mysql = cursor_prestiti_mysql.fetchall()
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
+
+        # Esegui una query per ottenere i prestiti
+        cursor.execute("SELECT * FROM prestiti")
+        prestiti_mysql = cursor.fetchall()
+
+        # Chiudi il cursore e la connessione
+        cursor.close()
+        db.close()
 
         return jsonify({'prestiti_mysql': prestiti_mysql})
 
     except Exception as e:
         return jsonify({'error': str(e)})
 
+# Rotta per ottenere un prestito specifico
 @app.route('/prestiti/<int:prestito_id>', methods=['GET'])
 def get_prestito(prestito_id):
     try:
-        # MySQL
-        cursor_prestiti_mysql.execute("SELECT * FROM prestiti WHERE id = %s", (prestito_id,))
-        prestito_mysql = cursor_prestiti_mysql.fetchone()
+        # Ottieni una connessione al database
+        db = get_db_connection()
 
-        return jsonify({'prestito_mysql': prestito_mysql})
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
+
+        # Esegui una query per ottenere un prestito specifico
+        cursor.execute("SELECT * FROM prestiti WHERE id = %s", (prestito_id,))
+        prestito_mysql = cursor.fetchone()
+
+        # Chiudi il cursore e la connessione
+        cursor.close()
+        db.close()
+
+        if prestito_mysql:
+            return jsonify({'prestito_mysql': prestito_mysql})
+        else:
+            return jsonify({'message': 'Prestito non trovato'}), 404
 
     except Exception as e:
         return jsonify({'error': str(e)})
 
+# Rotta per aggiungere un nuovo prestito
 @app.route('/prestiti', methods=['POST'])
 def add_prestito():
     try:
@@ -45,15 +72,26 @@ def add_prestito():
         libro_id = data['libro_id']
         utente_id = data['utente_id']
 
-        # MySQL
-        cursor_prestiti_mysql.execute("INSERT INTO prestiti (libro_id, utente_id) VALUES (%s, %s)", (libro_id, utente_id,))
-        db_prestiti_mysql.commit()
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
+
+        # Esegui una query per inserire un nuovo prestito
+        cursor.execute("INSERT INTO prestiti (libro_id, utente_id) VALUES (%s, %s)", (libro_id, utente_id,))
+
+        # Commit delle modifiche e chiusura della connessione
+        db.commit()
+        cursor.close()
+        db.close()
 
         return jsonify({'message': 'Prestito aggiunto con successo'})
 
     except Exception as e:
         return jsonify({'error': str(e)})
 
+# Rotta per aggiornare un prestito
 @app.route('/prestiti/<int:prestito_id>', methods=['PUT'])
 def update_prestito(prestito_id):
     try:
@@ -61,21 +99,42 @@ def update_prestito(prestito_id):
         libro_id = data['libro_id']
         utente_id = data['utente_id']
 
-        # MySQL
-        cursor_prestiti_mysql.execute("UPDATE prestiti SET libro_id=%s, utente_id=%s WHERE id=%s", (libro_id, utente_id, prestito_id))
-        db_prestiti_mysql.commit()
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
+
+        # Esegui una query per aggiornare un prestito
+        cursor.execute("UPDATE prestiti SET libro_id=%s, utente_id=%s WHERE id=%s", (libro_id, utente_id, prestito_id,))
+
+        # Commit delle modifiche e chiusura della connessione
+        db.commit()
+        cursor.close()
+        db.close()
 
         return jsonify({'message': 'Prestito aggiornato con successo'})
 
     except Exception as e:
         return jsonify({'error': str(e)})
 
+# Rotta per eliminare un prestito
 @app.route('/prestiti/<int:prestito_id>', methods=['DELETE'])
 def delete_prestito(prestito_id):
     try:
-        # MySQL
-        cursor_prestiti_mysql.execute("DELETE FROM prestiti WHERE id=%s", (prestito_id,))
-        db_prestiti_mysql.commit()
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
+
+        # Esegui una query per eliminare un prestito
+        cursor.execute("DELETE FROM prestiti WHERE id=%s", (prestito_id,))
+
+        # Commit delle modifiche e chiusura della connessione
+        db.commit()
+        cursor.close()
+        db.close()
 
         return jsonify({'message': 'Prestito eliminato con successo'})
 
@@ -83,4 +142,4 @@ def delete_prestito(prestito_id):
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")

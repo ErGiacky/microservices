@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     container_name: apputenti
     restart: on-failure
-    image: ergiacky/microservices:UtentiApp
+    image: ergiacky/microservices:Apputenti
     command: sh -c "sleep 45s ; python3 ./app.py"
     ports:
       - '5000:5000'
@@ -23,7 +23,7 @@ services:
       context: utenti/db/
       dockerfile: Dockerfile
     container_name: dbutenti
-    image: ergiacky/microservices:UtentiDb
+    image: ergiacky/microservices:Dbutenti
     restart: on-failure
     environment:
       MYSQL_ROOT_PASSWORD: password
@@ -49,13 +49,13 @@ services:
     networks:
       - books
 
-      # DB Libri MySQL
+      # DB prestiti MySQL
   dbprestiti:
     build:
       context: prestiti/db/
       dockerfile: Dockerfile
     container_name: dbprestiti
-    image: ergiacky/microservices:dbprestiti
+    image: ergiacky/microservices:Dbprestiti
     restart: on-failure 
     environment:
       MYSQL_ROOT_PASSWORD: password
@@ -72,6 +72,7 @@ services:
       dockerfile: Dockerfile
     container_name: applibri
     restart: on-failure
+    image: ergiacky/microservices:Applibri
     command: sh -c "sleep 45 ; python3 ./app.py"
     ports:
       - '4999:5000'
@@ -83,13 +84,12 @@ services:
   # App Python Prestiti
   appprestiti:
     build: 
-      context: prestiti/
+      context: prestiti/program/
       dockerfile: Dockerfile
     container_name: appPrestiti
     restart: on-failure
+    image: ergiacky/microservices:Appprestiti
     command: sh -c "sleep 45 ; python3 ./app.py"
-    depends_on:
-      - couchserver
     ports:
       - 4998:5000
     networks:
