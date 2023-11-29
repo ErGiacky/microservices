@@ -9,6 +9,7 @@ password='password',
 host='dblibri',
 database='Libri')
 
+db = mysql.connector.connect(conn)
 cursor = conn.cursor()
 
 # Rotta per ottenere tutti i libri
