@@ -33,6 +33,7 @@ def get_libri():
         cursor.close()
         db.close()
 
+
         # Converte i risultati in un formato JSON e li restituisce
         return jsonify({'libri': libri})
 
@@ -114,7 +115,7 @@ def update_libro(id):
         db.commit()
         cursor.close()
         db.close()
-
+        
         return jsonify({'message': 'Libro aggiornato con successo'})
 
     except Exception as e:
@@ -124,6 +125,9 @@ def update_libro(id):
 @app.route('/libri/<int:id>', methods=['DELETE'])
 def delete_libro(id):
     try:
+        data = request.get_json()
+        titolo = data['titolo']
+        autore = data['autore']
         # Ottieni una connessione al database
         db = get_db_connection()
 
