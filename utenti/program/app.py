@@ -1,9 +1,5 @@
-import logging
-import json
-from flask import Flask, request
-from flask import jsonify
+from flask import Flask, jsonify, request
 import mysql.connector
-
 
 app = Flask(__name__)
 
@@ -15,94 +11,84 @@ database='Utenti')
 
 cursor = conn.cursor()
 
-# Route per eseguire la funzione che ritorna tutti gli utenti
-@app.route('/get', methods=['GET'])
-def execute_query():
-    '''get'''
+# Rotta per ottenere tutti gli utenti
+@app.route('/utenti', methods=['GET'])
+def get_utenti():
+    try:
+        # Esegui una query per ottenere gli utenti
+        cursor.execute("SELECT * FROM utenti")
+        utenti = cursor.fetchall()
 
-    cursor.execute('SELECT * FROM Utente')
-    results = cursor.fetchall()
-    column_names = [desc[0] for desc in cursor.description]
-    data = [dict(zip(column_names, row)) for row in results]
+        # Converte i risultati in un formato JSON e li restituisce
+        return jsonify({'utenti': utenti})
 
-    # Restituisci i risultati come JSON
-    return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
+# Rotta per ottenere un utente specifico
+@app.route('/utenti/<int:utente_id>', methods=['GET'])
+def get_utente(utente_id):
+    try:
+        # Esegui una query per ottenere un utente specifico
+        cursor.execute("SELECT * FROM utenti WHERE id = %s", (utente_id,))
+        utente = cursor.fetchone()
 
-@app.route('/get/<int:idutenteget>', methods=['GET'])
-def get_data_by_id(idutenteget):
-    '''getid'''
-    # Esegui una query per recuperare i dati con l'ID specificato
-    cursor.execute('SELECT * FROM Utente WHERE id = %s', (idutenteget,))
-    result = cursor.fetchone()
-    if result is None:
-        return json.dumps({'error': 'Dati non trovati.'}), 404
+        if utente:
+            return jsonify({'utente': utente})
+        else:
+            return jsonify({'message': 'Utente non trovato'}), 404
 
-    column_names = [desc[0] for desc in cursor.description]
-    data = dict(zip(column_names, result))
-    # Restituisci il risultato come JSON
-    return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
-#Crea un Utente
-@app.route('/crea', methods=['POST'])
-def insert_data():
-    '''create'''
-    data = request.get_json()
+# Rotta per aggiungere un nuovo utente
+@app.route('/utenti', methods=['POST'])
+def add_utente():
+    try:
+        data = request.get_json()
+        nome = data['nome']
+        cognome = data['cognome']
+        email = data['email']
 
-    idpost = data.get('ID')
-    nome = data.get('Nome')
-    cognome = data.get('Cognome')
-    mail = data.get('Mail')
-    telefono = data.get('Telefono')
-    if idpost in cursor.fetchall():
-        return json.dumps ({'error': 'ID già presente nel db.'}), 404
+        # Esegui una query per inserire un nuovo utente
+        cursor.execute("INSERT INTO utenti (nome, cognome, email) VALUES (%s, %s, %s)", (nome, cognome, email))
+        db.commit()
 
-    #inserire errore se stesso ID
-    cursor.execute(f'''INSERT INTO Utente
-    (ID, Nome, Cognome, Mail, Telefono)
-    VALUES ('{idpost}','{nome}' , '{cognome}', '{mail}', '{telefono}')''' )
+        return jsonify({'message': 'Utente aggiunto con successo'})
 
-    conn.commit()
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
+# Rotta per aggiornare un utente
+@app.route('/utenti/<int:utente_id>', methods=['PUT'])
+def update_utente(utente_id):
+    try:
+        data = request.get_json()
+        nome = data['nome']
+        cognome = data['cognome']
+        email = data['email']
 
-    return 'Inserito utente nel db'
+        # Esegui una query per aggiornare un utente
+        cursor.execute("UPDATE utenti SET nome=%s, cognome=%s, email=%s WHERE id=%s", (nome, cognome, email, utente_id))
+        db.commit()
 
-@app.route('/update/<int:idupdate>', methods=['PUT'])
-def update_data(idupdate):
-    '''update'''
-    data = request.get_json()
+        return jsonify({'message': 'Utente aggiornato con successo'})
 
-    nome = data.get('Nome')
-    cognome = data.get('Cognome')
-    mail = data.get('Mail')
-    telefono = data.get('Telefono')
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
+# Rotta per eliminare un utente
+@app.route('/utenti/<int:utente_id>', methods=['DELETE'])
+def delete_utente(utente_id):
+    try:
+        # Esegui una query per eliminare un utente
+        cursor.execute("DELETE FROM utenti WHERE id=%s", (utente_id,))
+        db.commit()
 
-    # Esegui la query di aggiornamento
-    cursor.execute(f"""UPDATE Utente SET Nome
-    = '{nome}', Cognome = '{cognome}', Mail = '{mail}', Telefono = '{telefono}' 
-    WHERE ID = '{idupdate}'""")
+        return jsonify({'message': 'Utente eliminato con successo'})
 
-    conn.commit()
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
-
-    return 'Aggiornato con successo'
-
-
-@app.route('/delete/<int:iddelete>', methods=['DELETE'])
-def delete_data(iddelete):
-    '''delete'''
-    # Esegui la query di eliminazione
-    cursor.execute(f"DELETE FROM Utente WHERE ID = '{iddelete}'")
-
-    conn.commit()
-
-
-    return 'Rimosso con successo'
-
-#run dell'applicazione
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
-
-logging.warning("Run dell'applicazione Utenti")
-# End-of-file (EOF)
+    app.run(debug=True)

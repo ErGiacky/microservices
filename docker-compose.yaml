@@ -6,7 +6,7 @@ services:
     container_name: apputenti
     restart: on-failure
     #posso usare il nome del container per la build direttamente da dockerhub
-    image: image:UtentiApp
+    image: ergiacky/microservices:UtentiApp
         #130secondi prima di avviare il programma
     command:  sh -c "sleep 130s ; python3 ./utenti.py"
     ports:
@@ -19,10 +19,10 @@ services:
 #db utenti mysql
   dbutenti:
     container_name: dbutenti
-    image:  image:UtentiDb
+    image:  ergiacky/microservices:UtentiDb
     restart: on-failure #restart del container 
     environment:
-      MYSQL_ROOT_PASSWORD: password! #variabili da utilizzare dentro il db
+      MYSQL_ROOT_PASSWORD: password #variabili da utilizzare dentro il db
       MYSQL_DATABASE: Utenti
       MYSQL_USER: sa
       MYSQL_PASSWORD: password 
@@ -32,7 +32,7 @@ services:
       #db libri
   dblibri:
     container_name: dblibri
-    image: image:Dblibri 
+    image: ergiacky/microservices:Dblibri 
     restart: on-failure 
     environment:
       MYSQL_ROOT_PASSWORD: password

@@ -1,101 +1,92 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-import uuid
+from flask import Flask, jsonify, request
+import mysql.connector
 
 app = Flask(__name__)
-CORS(app)
 
+#Connection string per collegarsi al db Utenti
+conn = mysql.connector.connect(user='sa',
+password='password',
+host='dblibri',
+database='Libri')
 
+cursor = conn.cursor()
 
-db = SQLAlchemy(app)
+# Rotta per ottenere tutti i libri
+@app.route('/libri', methods=['GET'])
+def get_libri():
+    try:
+        # Esegui una query per ottenere i libri
+        cursor.execute("SELECT * FROM libri")
+        libri = cursor.fetchall()
 
-class Book(db.Model):
-    id = db.Column(db.String, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    author = db.Column(db.String(255), nullable=False)
-    published_year = db.Column(db.Integer, nullable=False)
+        # Converte i risultati in un formato JSON e li restituisce
+        return jsonify({'libri': libri})
 
-# Crea il database e il modello
-with app.app_context():
-    db.create_all()
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
-@app.route('/books', methods=['GET'])
-def get_all_books():
-    books = Book.query.all()
-    response = [{'title': book.title, 'author': book.author, 'published_year': book.published_year, 'id': book.id} for book in books]
-    return jsonify(response), 200
+# Rotta per ottenere un libro specifico
+@app.route('/libri/<int:libro_id>', methods=['GET'])
+def get_libro(libro_id):
+    try:
+        # Esegui una query per ottenere un libro specifico
+        cursor.execute("SELECT * FROM libri WHERE id = %s", (libro_id,))
+        libro = cursor.fetchone()
 
-@app.route('/books/<book_id>', methods=['GET'])
-def get_book(book_id):
-    book = Book.query.get(book_id)
-    if book:
-        response = {'title': book.title, 'author': book.author, 'published_year': book.published_year, 'id': book.id}
-        return jsonify(response), 200
-    else:
-        return jsonify({'message': 'Book not found'}), 404
-
-@app.route('/books', methods=['POST'])
-def add_book():
-    data = request.get_json()
-
-    title = data.get('title')
-    author = data.get('author')
-    published_year = data.get('published_year')
-
-    if title and author and published_year:
-        new_book = Book(
-            id=str(uuid.uuid4()),
-            title=title,
-            author=author,
-            published_year=published_year
-        )
-
-        db.session.add(new_book)
-        db.session.commit()
-
-        response = {'message': 'Book added successfully', 'id': new_book.id}
-        return jsonify(response), 201
-    else:
-        return jsonify({'message': 'Invalid data supplied'}), 400
-
-@app.route('/books/<book_id>', methods=['PUT'])
-def update_book(book_id):
-    data = request.get_json()
-
-    title = data.get('title')
-    author = data.get('author')
-    published_year = data.get('published_year')
-
-    if title or author or published_year:
-        book = Book.query.get(book_id)
-
-        if book:
-            if title:
-                book.title = title
-            if author:
-                book.author = author
-            if published_year:
-                book.published_year = published_year
-
-            db.session.commit()
-
-            return jsonify({'message': 'Book updated successfully'}), 200
+        if libro:
+            return jsonify({'libro': libro})
         else:
-            return jsonify({'message': 'Book not found'}), 404
-    else:
-        return jsonify({'message': 'No valid data supplied'}), 400
+            return jsonify({'message': 'Libro non trovato'}), 404
 
-@app.route('/books/<book_id>', methods=['DELETE'])
-def delete_book(book_id):
-    book = Book.query.get(book_id)
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
-    if book:
-        db.session.delete(book)
-        db.session.commit()
-        return jsonify({'message': 'Book deleted successfully'}), 200
-    else:
-        return jsonify({'message': 'Book not found'}), 404
+# Rotta per aggiungere un nuovo libro
+@app.route('/libri', methods=['POST'])
+def add_libro():
+    try:
+        data = request.get_json()
+        titolo = data['titolo']
+        autore = data['autore']
+
+        # Esegui una query per inserire un nuovo libro
+        cursor.execute("INSERT INTO libri (titolo, autore) VALUES (%s, %s)", (titolo, autore))
+        db.commit()
+
+        return jsonify({'message': 'Libro aggiunto con successo'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+# Rotta per aggiornare un libro
+@app.route('/libri/<int:libro_id>', methods=['PUT'])
+def update_libro(libro_id):
+    try:
+        data = request.get_json()
+        titolo = data['titolo']
+        autore = data['autore']
+
+        # Esegui una query per aggiornare un libro
+        cursor.execute("UPDATE libri SET titolo=%s, autore=%s WHERE id=%s", (titolo, autore, libro_id))
+        db.commit()
+
+        return jsonify({'message': 'Libro aggiornato con successo'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+# Rotta per eliminare un libro
+@app.route('/libri/<int:libro_id>', methods=['DELETE'])
+def delete_libro(libro_id):
+    try:
+        # Esegui una query per eliminare un libro
+        cursor.execute("DELETE FROM libri WHERE id=%s", (libro_id,))
+        db.commit()
+
+        return jsonify({'message': 'Libro eliminato con successo'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)
