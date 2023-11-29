@@ -11,3 +11,7 @@ Progetto Microservizi(Biblioteca)
 - Un Dockerfile per ogni servizio Flask e uno docker-compose.yaml che definisce i servizi e le relative configurazioni.
 - CI/CD ad ogni push di repository su GitHub si aggiorna l'immagine su DockerHub.
 - Usando la libreria logging di python per tenere traccia dei file di log del vari servizi (non capisco se funzioni o meno).
+
+
+  
+![diagram](https://github.com/ErGiacky/microservices/assets/74863681/58dab227-91fb-4617-8430-c0433eb44faa)
