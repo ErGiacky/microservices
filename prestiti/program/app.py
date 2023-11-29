@@ -1,7 +1,11 @@
 from flask import Flask, jsonify, request
 import mysql.connector
+import logging
 
 app = Flask(__name__)
+
+# Configura il logger
+logging.basicConfig(filename='libri.log', filemode="w",level=logging.INFO)
 
 # Configurazione della connessione al database
 db_config = {
@@ -14,6 +18,8 @@ db_config = {
 # Funzione per ottenere una connessione al database
 def get_db_connection():
     return mysql.connector.connect(**db_config)
+
+logging.info("Connessione database...")
 
 # Rotta per ottenere tutti i prestiti
 @app.route('/prestiti', methods=['GET'])
@@ -140,6 +146,8 @@ def delete_prestito(prestito_id):
 
     except Exception as e:
         return jsonify({'error': str(e)})
+    
+logging.warning("esecuzione prestiti/app.py...")
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")

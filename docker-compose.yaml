@@ -6,6 +6,8 @@ services:
     build:
       context: utenti/program/
       dockerfile: Dockerfile
+    volumes:
+        - ./utenti/program:/app/logs
     container_name: apputenti
     restart: on-failure
     image: ergiacky/microservices:Apputenti
@@ -71,6 +73,8 @@ services:
     build:
       context: libri/program/
       dockerfile: Dockerfile
+    volumes:
+        - ./libri/program:/app/logs
     container_name: applibri
     restart: on-failure
     image: ergiacky/microservices:Applibri
@@ -87,6 +91,8 @@ services:
     build: 
       context: prestiti/program/
       dockerfile: Dockerfile
+    volumes:
+        - ./prestiti/program:/app/logs
     container_name: appPrestiti
     restart: on-failure
     image: ergiacky/microservices:Appprestiti
