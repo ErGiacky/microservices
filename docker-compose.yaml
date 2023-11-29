@@ -1,23 +1,29 @@
 version: '3'
 services:
-
 #app python utenti
   apputenti:
+    build:
+      context: utenti/program/
+      dockerfile: Dockerfile
     container_name: apputenti
     restart: on-failure
     #posso usare il nome del container per la build direttamente da dockerhub
     image: ergiacky/microservices:UtentiApp
         #130secondi prima di avviare il programma
-    command:  sh -c "sleep 130s ; python3 ./utenti.py"
+    command:  sh -c "sleep 45s ; python3 ./app.py"
     ports:
       - '5000:5000' #esposta la porta default di flask [5000]
     depends_on:
       - dbutenti  # prende come riferimento il dbutenti
     networks:
       - users #condividono la stessa rete
+      #network divise per ogni coppia di microservizi
     
 #db utenti mysql
   dbutenti:
+    build:
+      context: utenti/db/
+      dockerfile: Dockerfile
     container_name: dbutenti
     image:  ergiacky/microservices:UtentiDb
     restart: on-failure #restart del container 
@@ -31,6 +37,9 @@ services:
 
       #db libri
   dblibri:
+    build:
+      context: libri/db/
+      dockerfile: Dockerfile
     container_name: dblibri
     image: ergiacky/microservices:Dblibri 
     restart: on-failure 
@@ -39,7 +48,36 @@ services:
       MYSQL_DATABASE: Libri
       MYSQL_USER: sa
       MYSQL_PASSWORD: password  
-    ports:
-      -  '3305:3306'
     networks:
       - books
+
+   #python libri
+  applibri:
+    build:
+      context: libri/program/
+      dockerfile: Dockerfile
+    container_name: applibri
+    image: ergiacky/microservizi:Applibri 
+    restart: on-failure
+    command:  sh -c "sleep 45 ; python3 ./app.py"   #120secondi prima di avviare il programma
+    ports:
+      - '4999:5000' #porta 4999 aperta verso l'esterno
+    depends_on:
+      - dblibri
+      #- kafka #prende come riferimento il dbLibri  
+    networks:
+      - books 
+
+networks:
+  users:
+    driver: bridge
+  books:
+    driver: bridge
+  borrowings:
+    driver: bridge
+
+
+
+
+
+

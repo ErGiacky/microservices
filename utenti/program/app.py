@@ -3,21 +3,35 @@ import mysql.connector
 
 app = Flask(__name__)
 
-#Connection string per collegarsi al db Utenti
-conn = mysql.connector.connect(user='sa',
-password='password',
-host='dbutenti',
-database='Utenti')
+# Configurazione della connessione al database
+db_config = {
+    'user': 'sa',
+    'password': 'password',
+    'host': 'dbutenti',
+    'database': 'Utenti'
+}
 
-cursor = conn.cursor()
+# Funzione per ottenere una connessione al database
+def get_db_connection():
+    return mysql.connector.connect(**db_config)
 
 # Rotta per ottenere tutti gli utenti
 @app.route('/utenti', methods=['GET'])
 def get_utenti():
     try:
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
+
         # Esegui una query per ottenere gli utenti
-        cursor.execute("SELECT * FROM utenti")
+        cursor.execute("SELECT * FROM Utente")
         utenti = cursor.fetchall()
+
+        # Chiudi il cursore e la connessione
+        cursor.close()
+        db.close()
 
         # Converte i risultati in un formato JSON e li restituisce
         return jsonify({'utenti': utenti})
@@ -29,9 +43,19 @@ def get_utenti():
 @app.route('/utenti/<int:utente_id>', methods=['GET'])
 def get_utente(utente_id):
     try:
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
+
         # Esegui una query per ottenere un utente specifico
-        cursor.execute("SELECT * FROM utenti WHERE id = %s", (utente_id,))
+        cursor.execute("SELECT * FROM Utente WHERE id = %s", (utente_id,))
         utente = cursor.fetchone()
+
+        # Chiudi il cursore e la connessione
+        cursor.close()
+        db.close()
 
         if utente:
             return jsonify({'utente': utente})
@@ -48,11 +72,20 @@ def add_utente():
         data = request.get_json()
         nome = data['nome']
         cognome = data['cognome']
-        email = data['email']
+
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
 
         # Esegui una query per inserire un nuovo utente
-        cursor.execute("INSERT INTO utenti (nome, cognome, email) VALUES (%s, %s, %s)", (nome, cognome, email))
+        cursor.execute("INSERT INTO Utente (nome, cognome) VALUES (%s, %s)", (nome, cognome))
+        
+        # Commit delle modifiche e chiusura della connessione
         db.commit()
+        cursor.close()
+        db.close()
 
         return jsonify({'message': 'Utente aggiunto con successo'})
 
@@ -66,11 +99,20 @@ def update_utente(utente_id):
         data = request.get_json()
         nome = data['nome']
         cognome = data['cognome']
-        email = data['email']
+
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
 
         # Esegui una query per aggiornare un utente
-        cursor.execute("UPDATE utenti SET nome=%s, cognome=%s, email=%s WHERE id=%s", (nome, cognome, email, utente_id))
+        cursor.execute("UPDATE Utente SET nome=%s, cognome=%s WHERE id=%s", (nome, cognome, utente_id))
+        
+        # Commit delle modifiche e chiusura della connessione
         db.commit()
+        cursor.close()
+        db.close()
 
         return jsonify({'message': 'Utente aggiornato con successo'})
 
@@ -81,9 +123,19 @@ def update_utente(utente_id):
 @app.route('/utenti/<int:utente_id>', methods=['DELETE'])
 def delete_utente(utente_id):
     try:
+        # Ottieni una connessione al database
+        db = get_db_connection()
+
+        # Crea un cursore per eseguire le query
+        cursor = db.cursor()
+
         # Esegui una query per eliminare un utente
-        cursor.execute("DELETE FROM utenti WHERE id=%s", (utente_id,))
+        cursor.execute("DELETE FROM Utente WHERE id=%s", (utente_id,))
+        
+        # Commit delle modifiche e chiusura della connessione
         db.commit()
+        cursor.close()
+        db.close()
 
         return jsonify({'message': 'Utente eliminato con successo'})
 
@@ -91,4 +143,4 @@ def delete_utente(utente_id):
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host="0.0.0.0")
