@@ -5,11 +5,15 @@ services:
     build:
       context: utenti/program/
       dockerfile: Dockerfile
+    build:
+      context: utenti/program/
+      dockerfile: Dockerfile
     container_name: apputenti
     restart: on-failure
     #posso usare il nome del container per la build direttamente da dockerhub
     image: ergiacky/microservices:UtentiApp
         #130secondi prima di avviare il programma
+    command:  sh -c "sleep 45s ; python3 ./app.py"
     command:  sh -c "sleep 45s ; python3 ./app.py"
     ports:
       - '5000:5000' #esposta la porta default di flask [5000]
@@ -18,9 +22,13 @@ services:
     networks:
       - users #condividono la stessa rete
       #network divise per ogni coppia di microservizi
+      #network divise per ogni coppia di microservizi
     
 #db utenti mysql
   dbutenti:
+    build:
+      context: utenti/db/
+      dockerfile: Dockerfile
     build:
       context: utenti/db/
       dockerfile: Dockerfile
@@ -40,6 +48,9 @@ services:
     build:
       context: libri/db/
       dockerfile: Dockerfile
+    build:
+      context: libri/db/
+      dockerfile: Dockerfile
     container_name: dblibri
     image: ergiacky/microservices:Dblibri 
     restart: on-failure 
@@ -48,6 +59,18 @@ services:
       MYSQL_DATABASE: Libri
       MYSQL_USER: sa
       MYSQL_PASSWORD: password  
+    networks:
+      - books
+
+   #python libri
+  applibri:
+    build:
+      context: libri/program/
+      dockerfile: Dockerfile
+    container_name: applibri
+    image: ergiacky/microservizi:Applibri 
+    restart: on-failure
+    command:  sh -c "sleep 45 ; python3 ./app.py"   #120secondi prima di avviare il programma
     networks:
       - books
 
