@@ -53,7 +53,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:Dblibri
 
-   builddbprestiti:
+  builddbprestiti:
     runs-on: ubuntu-latest
     steps:
       -
