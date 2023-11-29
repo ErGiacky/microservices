@@ -13,5 +13,6 @@ Progetto Microservizi(Biblioteca)
 - Usando la libreria logging di python per tenere traccia dei file di log del vari servizi (non capisco se funzioni o meno).
 
 
+
   
-![diagram](https://github.com/ErGiacky/microservices/assets/74863681/58dab227-91fb-4617-8430-c0433eb44faa)
+![diagramma_scuro](https://github.com/ErGiacky/microservices/assets/74863681/787c4c95-9554-4a7e-8dbc-831fe36e7a6f)
