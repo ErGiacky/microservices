@@ -1,53 +1,40 @@
 version: '3'
+
 services:
-#app python utenti
+  # App Python Utenti
   apputenti:
-    build:
-      context: utenti/program/
-      dockerfile: Dockerfile
     build:
       context: utenti/program/
       dockerfile: Dockerfile
     container_name: apputenti
     restart: on-failure
-    #posso usare il nome del container per la build direttamente da dockerhub
     image: ergiacky/microservices:UtentiApp
-        #130secondi prima di avviare il programma
-    command:  sh -c "sleep 45s ; python3 ./app.py"
-    command:  sh -c "sleep 45s ; python3 ./app.py"
+    command: sh -c "sleep 45s ; python3 ./app.py"
     ports:
-      - '5000:5000' #esposta la porta default di flask [5000]
+      - '5000:5000'
     depends_on:
-      - dbutenti  # prende come riferimento il dbutenti
+      - dbutenti
     networks:
-      - users #condividono la stessa rete
-      #network divise per ogni coppia di microservizi
-      #network divise per ogni coppia di microservizi
-    
-#db utenti mysql
+      - users
+
+  # DB Utenti MySQL
   dbutenti:
     build:
       context: utenti/db/
       dockerfile: Dockerfile
-    build:
-      context: utenti/db/
-      dockerfile: Dockerfile
     container_name: dbutenti
-    image:  ergiacky/microservices:UtentiDb
-    restart: on-failure #restart del container 
+    image: ergiacky/microservices:UtentiDb
+    restart: on-failure
     environment:
-      MYSQL_ROOT_PASSWORD: password #variabili da utilizzare dentro il db
+      MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: Utenti
       MYSQL_USER: sa
       MYSQL_PASSWORD: password 
     networks:
       - users
 
-      #db libri
+  # DB Libri MySQL
   dblibri:
-    build:
-      context: libri/db/
-      dockerfile: Dockerfile
     build:
       context: libri/db/
       dockerfile: Dockerfile
@@ -62,63 +49,51 @@ services:
     networks:
       - books
 
-   #python libri
-  applibri:
+      # DB Libri MySQL
+  dbprestiti:
     build:
-      context: libri/program/
+      context: prestiti/db/
       dockerfile: Dockerfile
-    container_name: applibri
-    image: ergiacky/microservizi:Applibri 
-    restart: on-failure
-    command:  sh -c "sleep 45 ; python3 ./app.py"   #120secondi prima di avviare il programma
-    networks:
-      - books
-
-   #python libri
-  applibri:
-    build:
-      context: libri/program/
-      dockerfile: Dockerfile
-    container_name: applibri
-    image: ergiacky/microservizi:Applibri 
-    restart: on-failure
-    command:  sh -c "sleep 45 ; python3 ./app.py"   #120secondi prima di avviare il programma
-    ports:
-      - '4999:5000' #porta 4999 aperta verso l'esterno
-    depends_on:
-      - dblibri
-      #- kafka #prende come riferimento il dbLibri  
-    networks:
-      - books 
-
-    #db prstiti nosql 
-  couchserver:
-    image: couchdb
-    restart: on-failure
-    ports:
-      - "5983:5984"
+    container_name: dbprestiti
+    image: ergiacky/microservices:dbprestiti
+    restart: on-failure 
     environment:
-      - COUCHDB_USER=alessio
-      - COUCHDB_PASSWORD=password  #variabili che utilizza all'interno del db
-    volumes:
-        - ./dbdata:/opt/couchdb/data
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: Prestito
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: password  
     networks:
       - borrowings
 
-    #prestiti python
+  # App Python Libri
+  applibri:
+    build:
+      context: libri/program/
+      dockerfile: Dockerfile
+    container_name: applibri
+    restart: on-failure
+    command: sh -c "sleep 45 ; python3 ./app.py"
+    ports:
+      - '4999:5000'
+    depends_on:
+      - dblibri 
+    networks:
+      - books 
+
+  # App Python Prestiti
   appprestiti:
     build: 
       context: prestiti/
       dockerfile: Dockerfile
-    command:  sh -c "sleep 45 ; python3 ./app.py"
+    container_name: appPrestiti
     restart: on-failure
+    command: sh -c "sleep 45 ; python3 ./app.py"
     depends_on:
       - couchserver
     ports:
-      - 4998:5000  #si espone alla porta 4998
+      - 4998:5000
     networks:
       - borrowings
-
 
 networks:
   users:
@@ -127,9 +102,3 @@ networks:
     driver: bridge
   borrowings:
     driver: bridge
-
-
-
-
-
-
