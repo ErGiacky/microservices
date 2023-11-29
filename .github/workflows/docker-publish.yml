@@ -95,7 +95,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: prestiti/
+          context: prestiti/program/
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:PrestitiApp
 
@@ -122,7 +122,8 @@ jobs:
             context: utenti/program/
             push: true
             tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:UtentiApp
-  prestiti:
+
+  builddbutenti:
         runs-on: ubuntu-latest
         steps:
           -
