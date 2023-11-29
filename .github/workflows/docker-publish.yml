@@ -97,7 +97,7 @@ jobs:
         with:
           context: prestiti/program/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:PrestitiApp
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:Appprestiti
 
           
   buildapputenti:
@@ -121,7 +121,7 @@ jobs:
           with:
             context: utenti/program/
             push: true
-            tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:UtentiApp
+            tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:Apputenti
 
   builddbutenti:
         runs-on: ubuntu-latest
@@ -144,5 +144,5 @@ jobs:
             with:
               context: utenti/db/
               push: true
-              tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:UtentiDb
+              tags: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:Dbutenti
       
